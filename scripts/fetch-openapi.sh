@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Fetch the OpenAPI spec from switchpost-openapi (the single source of truth).
+# Fetch the OpenAPI spec from switchpost-spec (the single source of truth).
 #
-# Local dev: copies from sibling directory ../switchpost-openapi/
+# Local dev: copies from sibling directory ../switchpost-spec/
 # CI:        downloads from GitHub at a pinned tag
 set -euo pipefail
 
-REPO="switchpost/switchpost-openapi"
+REPO="switchpost/switchpost-spec"
 TAG="${OPENAPI_TAG:-latest}"
 OUTPUT="openapi.json"
-LOCAL_PATH="../switchpost-openapi/openapi.json"
+LOCAL_PATH="../switchpost-spec/openapi.json"
 
 if [ "$TAG" = "latest" ] && [ -f "$LOCAL_PATH" ]; then
-  echo "Copying from local switchpost-openapi..."
+  echo "Copying from local switchpost-spec..."
   cp "$LOCAL_PATH" "$OUTPUT"
 elif command -v gh &>/dev/null; then
   echo "Downloading from GitHub ($REPO @ $TAG)..."
@@ -21,7 +21,7 @@ elif command -v gh &>/dev/null; then
     gh release download "$TAG" --repo "$REPO" --pattern openapi.json --output "$OUTPUT" --clobber
   fi
 else
-  echo "Error: gh CLI not found and no local switchpost-openapi directory available."
+  echo "Error: gh CLI not found and no local switchpost-spec directory available."
   exit 1
 fi
 

@@ -29,7 +29,7 @@ jobs:
           curl -fsSL \
             -H "Authorization: Bearer $GH_TOKEN" \
             -o openapi.json \
-            "https://raw.githubusercontent.com/switchpost/switchpost-openapi/${OPENAPI_REF}/openapi.json"
+            "https://raw.githubusercontent.com/switchpost/switchpost-spec/${OPENAPI_REF}/openapi.json"
 
       - name: Setup uv
         uses: astral-sh/setup-uv@v7
@@ -61,6 +61,6 @@ jobs:
           branch: sdk-update/openapi
           title: "chore: update SDK from latest OpenAPI spec"
           body: |
-            Automated SDK update triggered by a change to `openapi.json` in switchpost-openapi.
+            Automated SDK update triggered by a change to `openapi.json` in switchpost-spec.
 
-            Commit: switchpost/switchpost-openapi@${{ github.event.client_payload.ref }}
+            Commit: switchpost/switchpost-spec@${{ github.event.client_payload.ref }}

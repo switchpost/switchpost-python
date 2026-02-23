@@ -44,10 +44,10 @@ dmypy.json
 # PyPI
 .pypirc
 
-# OpenAPI spec (fetched from switchpost-openapi)
+# OpenAPI spec (fetched from switchpost-spec)
 openapi.json
 
-# Gherkin feature files (fetched from switchpost-openapi)
+# Gherkin feature files (fetched from switchpost-spec)
 features/
 
 # E2E test environment
