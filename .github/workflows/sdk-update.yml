@@ -1,0 +1,66 @@
+name: SDK Update
+
+on:
+  repository_dispatch:
+    types: [openapi-updated]
+
+jobs:
+  update:
+    name: Update SDK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Robot App token
+        uses: actions/create-github-app-token@v2
+        id: app-token
+        with:
+          app-id: ${{ secrets.GH_APP_ID }}
+          private-key: ${{ secrets.GH_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: "${{ steps.app-token.outputs.token }}"
+
+      - name: Fetch latest openapi.json
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+          OPENAPI_REF: ${{ github.event.client_payload.ref }}
+        run: |
+          curl -fsSL \
+            -H "Authorization: Bearer $GH_TOKEN" \
+            -o openapi.json \
+            "https://raw.githubusercontent.com/switchpost/switchpost-openapi/${OPENAPI_REF}/openapi.json"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Setup Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "lts/*"
+
+      - name: Update SDK with Claude Code
+        run: claude --dangerously-skip-permissions -p "/update-sdk"
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          commit-message: "chore: update SDK from latest OpenAPI spec"
+          branch: sdk-update/openapi
+          title: "chore: update SDK from latest OpenAPI spec"
+          body: |
+            Automated SDK update triggered by a change to `openapi.json` in switchpost-openapi.
+
+            Commit: switchpost/switchpost-openapi@${{ github.event.client_payload.ref }}
